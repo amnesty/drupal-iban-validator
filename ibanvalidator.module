@@ -1,0 +1,52 @@
+<?php
+    require_once( 'includes/iban.php' );
+
+   /**
+    * Implementation of hook_webform_validation_validators().
+    */
+    function ibanvalidator_webform_validation_validators() {
+        return
+            array(
+                'validate_iban' => array(
+                    'name' => 'Validate IBAN',
+                    'description' => t( 'Verifies that the user-entered check digit for an International Bank Account Number (IBAN) is correct.' ),
+                    'component_types' => array( 'textfield' ) ),
+
+                'validate_esban' => array(
+                    'name' => 'Validate Spanish Check Digit',
+                    'description' => t( 'Verifies that the user-entered check digit for an Spanish Bank Account Number is correct.' ),
+                    'component_types' => array( 'textfield' ) )
+                );
+    }
+
+   /**
+    * Implementation of hook_webform_validation_validate().
+    */
+    function ibanvalidator_webform_validation_validate($validator_name, $items, $components, $rule) {
+        $errors = array();
+
+        if ( $items ) {
+            switch ( $validator_name ) {
+                case 'validate_iban':
+                    foreach ( $items as $key => $value ) {
+                        if ( $value && ( !isValidIban( $value ) ) ) {
+                            $errors[$key] = t( '%item is not a valid IBAN', array( '%item' => $components[$key]['name'] ) );
+                        }
+                    }
+
+                    return $errors;
+                    break;
+
+                case 'validate_esban':
+                    foreach ( $items as $key => $value ) {
+                        if ( $value && ( !isValidNIF( $value ) ) ) {
+                            $errors[$key] = t( '%item is not a valid Spanish Bank Account Number', array( '%item' => $components[$key]['name'] ) );
+                        }
+                    }
+
+                    return $errors;
+                    break;
+            }
+        }
+    }
+?>
