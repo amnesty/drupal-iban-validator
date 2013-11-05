@@ -8,7 +8,7 @@
         return
             array(
                 'validate_iban' => array(
-                    'name' => 'Validate IBAN',
+                    'name' => 'Validate IBAN Check Digit',
                     'description' => t( 'Verifies that the user-entered check digit for an International Bank Account Number (IBAN) is correct.' ),
                     'component_types' => array( 'textfield' ) ),
 
@@ -39,9 +39,18 @@
 
                 case 'validate_esban':
                     foreach ( $items as $key => $value ) {
-                        if ( $value && ( !isValidNIF( $value ) ) ) {
-                            $errors[$key] = t( '%item is not a valid Spanish Bank Account Number', array( '%item' => $components[$key]['name'] ) );
-                        }
+                        if($value['name'] == "entity")
+                            $entity = $items[$key];
+                        elseif($value['name'] == "office")
+                            $office = $items[$key];
+                        elseif($value['name'] == "CD")
+                            $CD = $items[$key];
+                        elseif($value['name'] == "account")
+                            $account = $items[$key];
+                    }
+
+                    if ( $value && ( !isValidAccountNumber( $entity, $office, $CD, $account ) ) ) {
+                        $errors[$key] = t( '%item is not a valid Spanish Bank Account Number', array( '%item' => $components[$key]['name'] ) );
                     }
 
                     return $errors;
