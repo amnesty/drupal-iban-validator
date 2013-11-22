@@ -11,12 +11,12 @@
                 'validate_iban' => array(
                     'name' => 'Validate IBAN Check Digit',
                     'description' => t( 'Verifies that the user-entered check digit for an International Bank Account Number (IBAN) is correct.' ),
-                    'component_types' => array( 'textfield' ) ),
+                    'component_types' => array( 'textfield', 'accountfield' ) ),
 
                 'validate_esban' => array(
                     'name' => 'Validate Spanish Check Digit',
                     'description' => t( 'Verifies that the user-entered check digit for an Spanish Bank Account Number is correct.' ),
-                    'component_types' => array( 'textfield' ) )
+                    'component_types' => array( 'textfield', 'entityfield', 'officefield', 'checkdigitfield', 'accountfield' ) )
                 );
     }
 
@@ -112,4 +112,13 @@
             }
         }
     }
+
+    /**
+     * Alter back-end webform component edit forms.
+     * Called by hook_form_alter() whenever editing a webform component.
+     */
+    //function ibanvalidator_component_form_alter(&$form, $form_state) {
+    //    Should I modify webform_component form?
+    //}
+
 ?>
