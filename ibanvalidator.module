@@ -13,33 +13,73 @@
                     'description' => t( 'Verifies that the user-entered check digit for an International Bank Account Number (IBAN) is correct.' ),
                     'component_types' => array( 'textfield', 'accountfield' ) ),
 
-                'validate_esban' => array(
+            	'validate_esban' => array(
                     'name' => 'Validate Spanish Check Digit',
                     'description' => t( 'Verifies that the user-entered check digit for an Spanish Bank Account Number is correct.' ),
                     'component_types' => array( 'textfield', 'entityfield', 'officefield', 'checkdigitfield', 'accountfield' ) )
-                );
+             );
     }
 
    /**
     * Implementation of hook_webform_validation_validate().
     */
-    function ibanvalidator_webform_validation_validate($validator_name, $items, $components, $rule) {
-        $errors = array();
+    function ibanvalidator_webform_validation_validate($validator_name, $items, $components, $rule ) {
 
-        if ( $items ) {
+        $ibanerror = 'Los dígitos de control no se corresponden con la cuenta corriente. Revisa el número de cuenta, por favor.';
+        $errors = array();
+		if ( $items ) {
             switch ( $validator_name ) {
                 case 'validate_iban':
-                    foreach ( $items as $key => $value ) {
-                        if ( $value && ( !isValidIban( $value ) ) ) {
-                            $errors[$key] = t( '%item is not a valid IBAN',
-                                array( '%item' => $components[ $key ][ "name" ] ) );
-                        }
-                    }
-
+				    // Define one variable per field we want to check
+				    $countryid="";
+				    $country="";
+				    $entity="";
+				    $office="";
+				    $cc="";
+				    $account="";
+		            foreach ( $items as $key => $value ) {
+			            $component = $components[$key];
+						// Get the component class to take its value
+						$class = $component["extra"]["css_classes"];
+						switch( $class ){
+							case "countryid":
+								$countryid = $value;
+								break;
+							case "country":
+								$country = $value;	
+								break;
+							case "entity":
+								$entity = $value;
+								break;
+							case "office":
+								$office = $value;
+								break;
+							case "check":
+								$cc = $value;
+								break;
+							case "account":
+								$account = $value;
+								break;
+						}
+		            }
+				    // Once we have all the parts, we put it together to get the entire IBAN number.
+				    $iban = $countryid."".$country."".$entity."".$office."".$cc."".$account;
+				    if( !isValidIban( $iban ) ){
+				    	$i=0;
+						// Mark all boxes as an error, not only one
+						foreach( $items as $key => $value){
+							if($i==2){
+								//$errors[$key] = t( '%item is not a valid IBAN',
+								$errors[$key] = t( $ibanerror,
+				                     array( '%item' => $components[ $key ][ "name" ] ) );
+							}
+							$i++;
+						}
+				    }
                     return $errors;
                     break;
 
-                case 'validate_esban':
+                /*case 'validate_esban':
                     if ( count( $items ) == 4 ) {
                         $field_length = array(
                             "entity" => 4,
@@ -100,25 +140,14 @@
                                 $field_value[ "office" ],
                                 $field_value[ "CD" ],
                                 $field_value[ "account" ] ) ) {
-
-                                $errors[ $field_key[ "CD" ] ] = t( '%item isn\'t the correct check digit. Please, review your account number',
-                                    array( '%item' => $components[ $field_key[ "CD" ] ][ "name" ] ) );
-                            }
-
-                            return $errors;
-                            break;
+	                                $errors[ $field_key[ "CD" ] ] = t( '%item isn\'t the correct check digit. Please, review your account number',
+	                                    array( '%item' => $components[ $field_key[ "CD" ] ][ "name" ] ) );
+                            	}
                         }
                     }
+                    return $errors;
+                    break;*/
             }
         }
     }
-
-    /**
-     * Alter back-end webform component edit forms.
-     * Called by hook_form_alter() whenever editing a webform component.
-     */
-    //function ibanvalidator_component_form_alter(&$form, $form_state) {
-    //    Should I modify webform_component form?
-    //}
-
 ?>
