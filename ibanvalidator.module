@@ -25,7 +25,7 @@
     */
     function ibanvalidator_webform_validation_validate($validator_name, $items, $components, $rule ) {
 
-        $ibanerror = 'Los dígitos de control no se corresponden con la cuenta corriente. Revisa el número de cuenta, por favor.';
+        $ibanerror = 'Los dígitos de control no se corresponden con la cuenta corriente. Revisa el número de cuenta entero, por favor.';
         $errors = array();
 		if ( $items ) {
             switch ( $validator_name ) {
@@ -66,10 +66,9 @@
 				    $iban = $countryid."".$country."".$entity."".$office."".$cc."".$account;
 				    if( !isValidIban( $iban ) ){
 				    	$i=0;
-						// Mark all boxes as an error, not only one
+						// Mark the 4th box as an error
 						foreach( $items as $key => $value){
-							if($i==2){
-								//$errors[$key] = t( '%item is not a valid IBAN',
+							if($i==4){
 								$errors[$key] = t( $ibanerror,
 				                     array( '%item' => $components[ $key ][ "name" ] ) );
 							}
@@ -79,7 +78,7 @@
                     return $errors;
                     break;
 
-                /*case 'validate_esban':
+                case 'validate_esban':
                     if ( count( $items ) == 4 ) {
                         $field_length = array(
                             "entity" => 4,
@@ -146,7 +145,7 @@
                         }
                     }
                     return $errors;
-                    break;*/
+                    break;
             }
         }
     }
