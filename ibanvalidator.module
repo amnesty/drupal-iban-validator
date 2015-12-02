@@ -25,7 +25,8 @@
     */
     function ibanvalidator_webform_validation_validate($validator_name, $items, $components, $rule ) {
 
-        $ibanerror = 'Los dígitos de control no se corresponden con la cuenta corriente. Revisa el número de cuenta entero, por favor.';
+        $ibanerror = 'La cuenta SEPA no es correcta. Revisa el número de cuenta entero, por favor.';
+        $esbanerror = 'La cuenta corriente no es válida. Revisa el número de cuenta entero, por favor.'
         $errors = array();
 		if ( $items ) {
             switch ( $validator_name ) {
@@ -62,7 +63,23 @@
 								break;
 						}
 		            }
-				    // Once we have all the parts, we put it together to get the entire IBAN number.
+                    // If the SEPA part is empty, check the Spanish account
+                    if($country == '' || $country == null){
+                        if ( !isValidAccountNumber($entity, $office, $cc, $account ) ) {
+                            $i=0;
+                            // Mark the 4th box as an error
+                            foreach( $items as $key => $value){
+                                if($i==4){
+                                    $errors[$key] = t( $esbanerror,
+                                        array( '%item' => $components[ $key ][ "name" ] ) );
+                                }
+                                $i++;
+                            }
+                        }
+                        return $errors;
+                    }
+
+				    // If is SEPA, once we have all the parts, we put it together to get the entire IBAN number.
 				    $iban = $countryid."".$country."".$entity."".$office."".$cc."".$account;
 				    if( !isValidIban( $iban ) ){
 				    	$i=0;
