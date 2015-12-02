@@ -67,9 +67,9 @@
                     if($country == '' || $country == null){
                         if ( !isValidAccountNumber($entity, $office, $cc, $account ) ) {
                             $i=0;
-                            // Mark the 4th box as an error
+                            // Mark the 5th box (dc) as an error
                             foreach( $items as $key => $value){
-                                if($i==4){
+                                if($i==5){
                                     $errors[$key] = t( $esbanerror,
                                         array( '%item' => $components[ $key ][ "name" ] ) );
                                 }
@@ -83,9 +83,9 @@
 				    $iban = $countryid."".$country."".$entity."".$office."".$cc."".$account;
 				    if( !isValidIban( $iban ) ){
 				    	$i=0;
-						// Mark the 4th box as an error
+						// Mark the 5th box (dc) as an error
 						foreach( $items as $key => $value){
-							if($i==4){
+							if($i==5){
 								$errors[$key] = t( $ibanerror,
 				                    array( '%item' => $components[ $key ][ "name" ] ) );
 							}
