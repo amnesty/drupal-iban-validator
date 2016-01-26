@@ -41,7 +41,8 @@
 		            foreach ( $items as $key => $value ) {
 			            $component = $components[$key];
 						// Get the component class to take its value
-						$class = explode(" ", $component["extra"]["css_classes"])[0];
+						$class_exp = explode(" ", $component["extra"]["css_classes"]);
+                        $class = $class_exp[0];
 						switch( $class ){
 							case "countryid":
 								$countryid = $value;
