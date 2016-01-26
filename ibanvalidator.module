@@ -41,7 +41,7 @@
 		            foreach ( $items as $key => $value ) {
 			            $component = $components[$key];
 						// Get the component class to take its value
-						$class = $component["extra"]["css_classes"];
+						$class = explode(" ", $component["extra"]["css_classes"])[0];
 						switch( $class ){
 							case "countryid":
 								$countryid = $value;
@@ -63,6 +63,7 @@
 								break;
 						}
 		            }
+
                     // If the SEPA part is empty, check the Spanish account
                     if($country == '' || $country == null){
                         if ( !isValidAccountNumber($entity, $office, $cc, $account ) ) {
