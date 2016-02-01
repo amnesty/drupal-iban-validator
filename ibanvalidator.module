@@ -66,7 +66,7 @@
 		            }
 
                     // If the SEPA part is empty, check the Spanish account
-                    if($country == '' || $country == null){
+                    if( $country == '' || !isset($country) ){
                         if ( !isValidAccountNumber($entity, $office, $cc, $account ) ) {
                             $i=0;
                             // Mark the 5th box (dc) as an error
