@@ -88,7 +88,7 @@
 						// Mark the 5th box (dc) as an error
 						foreach( $items as $key => $value){
 							if($i==5){
-								$errors[$key] = t( $iban . " " . $ibanerror,
+								$errors[$key] = t( $ibanerror,
 				                    array( '%item' => $components[ $key ][ "name" ] ) );
 							}
 							$i++;
