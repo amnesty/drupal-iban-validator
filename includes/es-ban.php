@@ -67,9 +67,9 @@
                 substr( $account, 9, 1 ) * 6;
 
             $CD2 = 11 - ( $accountSum % 11 );
+            
         }
-
-        return $CD1 . $CD2;
+        return substr($CD1 . $CD2, 0, 2);
     }
 
    /*
@@ -97,15 +97,12 @@
         if( !preg_match( "/^[0-9][0-9][0-9][0-9]/", $entity ) ) {
             $isValid = FALSE;
         }
-
         if( !preg_match( "/^[0-9][0-9][0-9][0-9]/", $office ) ) {
             $isValid = FALSE;
         }
-
         if( !preg_match( "/^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/", $account ) ) {
             $isValid = FALSE;
         }
-
         return $isValid;
     }
 ?>
