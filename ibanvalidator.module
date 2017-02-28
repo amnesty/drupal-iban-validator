@@ -81,7 +81,7 @@
                             $i++;
                         }
                     }
-
+                    return $errors;
                 }
 
                 // If is SEPA, once we have all the parts, we put it together to get the entire IBAN number.
