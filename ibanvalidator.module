@@ -69,7 +69,8 @@
 
                 // If the SEPA part is empty, calculate it
                 if( $country == '' || !isset($country) ){
-                    /*if ( !isValidAccountNumber( $entity, $office, $cc, $account ) ) {
+                    //if ( !isValidAccountNumber( $entity, $office, $cc, $account ) ) {
+                    if ( !ccc_valido($entity.$office.$cc.$account) ) {
                         $i=0;
                         // Mark the 5th box (dc) as an error
                         foreach( $items as $key => $value){
@@ -79,14 +80,12 @@
                             }
                             $i++;
                         }
-                    }*/
-                    $cc = $entity.$office.$cc.$account; // CC
-                    $iban = esban_to_iban($cc);
+                    }
 
                 }
-                else {	    // If is SEPA, once we have all the parts, we put it together to get the entire IBAN number.
-    				        $iban = $countryid."".$country."".$entity."".$office."".$cc."".$account;
-                }
+
+                // If is SEPA, once we have all the parts, we put it together to get the entire IBAN number.
+    				    $iban = $countryid."".$country."".$entity."".$office."".$cc."".$account;
 
                 // Validamos el IBAN
     				    if( !isValidIban( $iban ) ){
@@ -166,7 +165,7 @@
                                 $field_value[ "account" ] ) ) {
 	                                $errors[ $field_key[ "CD" ] ] = t( '%item isn\'t the correct check digit. Please, review your account number',
 	                                    array( '%item' => $components[ $field_key[ "CD" ] ][ "name" ] ) );
-                            	}
+                            	  }
                         }
                     }
                     return $errors;
