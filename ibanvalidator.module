@@ -1,6 +1,7 @@
 <?php
     require_once( 'includes/iban.php' );
     require_once( 'includes/es-ban.php' );
+    require_once( 'includes/esban2iban.php' );
 
    /**
     * Implementation of hook_webform_validation_validators().
@@ -28,74 +29,79 @@
         $ibanerror = 'La cuenta SEPA no es correcta. Revisa el número de cuenta entero, por favor.';
         $esbanerror = 'La cuenta corriente no es válida. Revisa el número de cuenta entero, por favor.';
         $errors = array();
-		if ( $items ) {
-            switch ( $validator_name ) {
-                case 'validate_iban':
-				    // Define one variable per field we want to check
-				    $countryid="";
-				    $country="";
-				    $entity="";
-				    $office="";
-				    $cc="";
-				    $account="";
-		            foreach ( $items as $key => $value ) {
-			            $component = $components[$key];
-						// Get the component class to take its value
-						$class_exp = explode(" ", $component["extra"]["css_classes"]);
-                        $class = $class_exp[0];
-						switch( $class ){
-							case "countryid":
-								$countryid = $value;
-								break;
-							case "country":
-								$country = $value;	
-								break;
-							case "entity":
-								$entity = $value;
-								break;
-							case "office":
-								$office = $value;
-								break;
-							case "check":
-								$cc = $value;
-								break;
-							case "account":
-								$account = $value;
-								break;
-						}
-		            }
+      	if ( $items ) {
+          switch ( $validator_name ) {
+            case 'validate_iban':
+      				    // Define one variable per field we want to check
+      				    $countryid="";
+      				    $country="";
+      				    $entity="";
+      				    $office="";
+      				    $cc="";
+      				    $account="";
+      		        foreach ( $items as $key => $value ) {
+          			      $component = $components[$key];
+          						// Get the component class to take its value
+          						$class_exp = explode(" ", $component["extra"]["css_classes"]);
+                      $class = $class_exp[0];
 
-                    // If the SEPA part is empty, check the Spanish account
-                    if( $country == '' || !isset($country) ){
-                        if ( !isValidAccountNumber( $entity, $office, $cc, $account ) ) {
-                            $i=0;
-                            // Mark the 5th box (dc) as an error
-                            foreach( $items as $key => $value){
-                                if($i==5){
-                                    $errors[$key] = t( $esbanerror,
-                                        array( '%item' => $components[ $key ][ "name" ] ) );
-                                }
-                                $i++;
+                      switch( $class ) {
+          							case "countryid":
+          								$countryid = $value;
+          								break;
+          							case "country":
+          								$country = $value;
+          								break;
+          							case "entity":
+          								$entity = $value;
+          								break;
+          							case "office":
+          								$office = $value;
+          								break;
+          							case "check":
+          								$cc = $value;
+          								break;
+          							case "account":
+          								$account = $value;
+          								break;
+          						}
+		                }
+
+                // If the SEPA part is empty, calculate it
+                if( $country == '' || !isset($country) ){
+                    /*if ( !isValidAccountNumber( $entity, $office, $cc, $account ) ) {
+                        $i=0;
+                        // Mark the 5th box (dc) as an error
+                        foreach( $items as $key => $value){
+                            if($i==5){
+                                $errors[$key] = t( $esbanerror,
+                                    array( '%item' => $components[ $key ][ "name" ] ) );
                             }
+                            $i++;
                         }
-                        return $errors;
-                    }
+                    }*/
+                    $cc = $entity.$office.$cc.$account; // CC
+                    $iban = esban_to_iban($cc);
 
-				    // If is SEPA, once we have all the parts, we put it together to get the entire IBAN number.
-				    $iban = $countryid."".$country."".$entity."".$office."".$cc."".$account;
-				    if( !isValidIban( $iban ) ){
-				    	$i=0;
-						// Mark the 5th box (dc) as an error
-						foreach( $items as $key => $value){
-							if($i==5){
-								$errors[$key] = t( $ibanerror,
-				                    array( '%item' => $components[ $key ][ "name" ] ) );
-							}
-							$i++;
-						}
-				    }
-                    return $errors;
-                    break;
+                }
+                else {	    // If is SEPA, once we have all the parts, we put it together to get the entire IBAN number.
+    				        $iban = $countryid."".$country."".$entity."".$office."".$cc."".$account;
+                }
+
+                // Validamos el IBAN
+    				    if( !isValidIban( $iban ) ){
+    				    	$i=0;
+    						// Mark the 5th box (dc) as an error
+      						foreach( $items as $key => $value){
+      							if($i==5){
+      								$errors[$key] = t( $ibanerror,
+      				                    array( '%item' => $components[ $key ][ "name" ] ) );
+      							}
+      							$i++;
+      						}
+    				    }
+                return $errors;
+                break;
 
                 case 'validate_esban':
                     if ( count( $items ) == 4 ) {

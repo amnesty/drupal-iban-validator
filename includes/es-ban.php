@@ -67,8 +67,10 @@
                 substr( $account, 9, 1 ) * 6;
 
             $CD2 = 11 - ( $accountSum % 11 );
-            
+
         }
+        echo $CD1 . $CD2 . "\n";
+        echo substr($CD1 . $CD2, 0, 2) . "\n";
         return substr($CD1 . $CD2, 0, 2);
     }
 
@@ -106,4 +108,3 @@
         return $isValid;
     }
 ?>
-
