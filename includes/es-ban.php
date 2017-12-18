@@ -82,7 +82,7 @@
     *           TRUE
     */
     function isValidAccountNumber( $entity, $office, $CD, $account ) {
-      echo $entity . " - " . $office . " - " . $CD . " - " . $account . "\n";
+      //echo $entity . " - " . $office . " - " . $CD . " - " . $account . "\n";
         $correctCD = "";
 
         if( respectsAccountPattern ( $entity, $office, $account ) ) {
@@ -141,8 +141,8 @@
             $CD2 = 11 - ( $accountSum % 11 );
 
         }
-        echo $CD1 . $CD2 . "\n";
-        echo substr($CD1 . $CD2, 0, 2) . "\n";
+        //echo $CD1 . $CD2 . "\n";
+        //echo substr($CD1 . $CD2, 0, 2) . "\n";
         return substr($CD1 . $CD2, 0, 2);
     }
 

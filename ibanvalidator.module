@@ -69,8 +69,8 @@
 
                 // If the SEPA part is empty, calculate it
                 if( $country == '' || !isset($country) ){
-                    //if ( !isValidAccountNumber( $entity, $office, $cc, $account ) ) {
-                    if ( !ccc_valido($entity."".$office."".$cc."".$account) ) {
+                    if ( !isValidAccountNumber( $entity, $office, $cc, $account ) ) {
+                    //if ( !ccc_valido($entity."".$office."".$cc."".$account) ) {
                         $i=0;
                         // Mark the 5th box (dc) as an error
                         foreach( $items as $key => $value){
