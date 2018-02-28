@@ -66,6 +66,11 @@
           								break;
           						}
 		                }
+                // If all the fields are empty break and return
+               if ($countryid == "" && $country == "" && $entity == "" && $office == "" && $cc == "" && $account == ""){
+                 return $errors;
+                 break;
+               }
 
                 // If the SEPA part is empty, calculate it
                 if( $country == '' || !isset($country) ){
