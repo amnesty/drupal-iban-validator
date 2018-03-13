@@ -67,7 +67,7 @@
           						}
 		                }
                 // If all the fields are empty break and return
-               if ($countryid == "" && $country == "" && $entity == "" && $office == "" && $cc == "" && $account == ""){
+               if ($country == "" && $entity == "" && $office == "" && $cc == "" && $account == ""){
                  return $errors;
                  break;
                }
