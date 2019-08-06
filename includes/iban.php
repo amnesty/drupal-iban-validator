@@ -14,6 +14,7 @@
     *       TRUE
     */
     function isValidIBAN( $accNumber ) {
+	$accNumber = str_replace(' ','',$accNumber); 
         $isValid = FALSE;
         $countryCode = substr( $accNumber, 0, 2 );
         $writenDigits = substr( $accNumber, 2, 2 );
