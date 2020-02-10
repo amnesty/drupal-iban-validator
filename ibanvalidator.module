@@ -14,10 +14,15 @@
                     'description' => t( 'Verifies that the user-entered check digit for an International Bank Account Number (IBAN) is correct.' ),
                     'component_types' => array( 'textfield', 'accountfield', 'select' ) ),
 
-            	'validate_esban' => array(
+            	  'validate_esban' => array(
                     'name' => 'Validate Spanish Check Digit',
                     'description' => t( 'Verifies that the user-entered check digit for an Spanish Bank Account Number is correct.' ),
-                    'component_types' => array( 'textfield', 'entityfield', 'officefield', 'checkdigitfield', 'accountfield' ) )
+                    'component_types' => array( 'textfield', 'entityfield', 'officefield', 'checkdigitfield', 'accountfield' ) ),
+
+                'validate_iban_unique' => array(
+                    'name' => 'Validate IBAN account all in the same field',
+                    'description' => t( 'Verifies that the International Bank Account Number (IBAN) is correct.' ),
+                    'component_types' => array( 'textfield' ) ),
              );
     }
 
@@ -29,8 +34,13 @@
         $ibanerror = 'La cuenta SEPA no es correcta. Revisa el número de cuenta entero, por favor.';
         $esbanerror = 'La cuenta corriente no es válida. Revisa el número de cuenta entero, por favor.';
         $errors = array();
+
       	if ( $items ) {
+
           switch ( $validator_name ) {
+
+            /************ CASE VALIDATE IBAN SEPARATELY ***********************/
+
             case 'validate_iban':
       				    // Define one variable per field we want to check
       				    $countryid="";
@@ -104,77 +114,106 @@
       						}
     				    }
                 return $errors;
-                break;
 
-                case 'validate_esban':
-                    if ( count( $items ) == 4 ) {
-                        $field_length = array(
-                            "entity" => 4,
-                            "office" => 4,
-                            "CD" => 2,
-                            "account" => 10
-                        );
+            break;
 
-                        $field_key[] = array();
-                        $field_value[] = array();
-                        foreach ( $items as $key => $value ) {
-                            $field_key[ $components[ $key ][ "form_key" ] ] = $key;
+            /************ CASE VALIDATE IBAN UNIQUE ***********************/
 
-                            foreach ( $field_length as $field => $length ) {
-                                if ( $components[ $key ][ "form_key" ] == $field ) {
-                                     $field_value[ $field ] = $value;
-                                }
-                            }
-                        }
+            case 'validate_iban_unique':
+
+                $ibanerror = 'La cuenta SEPA no es correcta. Revisa el número de cuenta entero, por favor.';
+
+                $iban = '';
+                foreach ( $items as $key => $value ) {
+                    $iban = str_replace("-", "", $value);
+                }
+
+                // Validamos el IBAN
+                if( !isValidIban( $iban ) ){
+
+                  // Mark the error
+                  foreach( $items as $key => $value){
+                        $errors[$key] = t( $ibanerror,
+                          array( '%item' => $components[ $key ][ "name" ] ) );
+                  }
+
+                }
+
+                return $errors;
+
+            break;
+
+            /************ CASE VALIDATE ESBAN SEPARATELY ***********************/
+
+            case 'validate_esban':
+              if ( count( $items ) == 4 ) {
+                    $field_length = array(
+                        "entity" => 4,
+                        "office" => 4,
+                        "CD" => 2,
+                        "account" => 10
+                    );
+
+                    $field_key[] = array();
+                    $field_value[] = array();
+                    foreach ( $items as $key => $value ) {
+                        $field_key[ $components[ $key ][ "form_key" ] ] = $key;
 
                         foreach ( $field_length as $field => $length ) {
-                            if ( !array_key_exists( $field, $field_value ) ) {
-                                watchdog( t( "You must choose a %field field to validate", array( "%item" => $field ) ) );
-                                break;
+                            if ( $components[ $key ][ "form_key" ] == $field ) {
+                                 $field_value[ $field ] = $value;
                             }
-                        }
-
-                        $account_is_empty = TRUE;
-                        foreach ( $field_length as $field => $length ) {
-                            if ( $field_value[ $field ] ) {
-                                $account_is_empty = FALSE;
-                            }
-                        }
-
-                        if ( !$account_is_empty ) {
-                            foreach ( $field_length as $field => $length ) {
-                                $key = $field_key[ $field ];
-                                $value = $field_value[ $field ];
-
-                                if ( !$value ) {
-                                    $errors[ $field_key[ $field ] ] = t( '%item cant\'t be blank',
-                                        array( '%item' => $components[ $key ][ "name" ] ) );
-
-                                } elseif ( strlen( $value ) != $length ) {
-                                    $errors[ $field_key[ $field ] ] = t( '%item must be %chars length',
-                                        array(
-                                            '%item' => $components[ $key ][ "name" ],
-                                            '%chars' => $field_length[ $field ] ) );
-
-                                } elseif ( !is_numeric( $value ) ) {
-                                    $errors[ $field_key[ $field ] ] = t( '%item must be a string of numbers',
-                                        array( '%item' => $components[ $key ][ "name" ] ) );
-                                }
-                            }
-
-                            if ( !isValidAccountNumber(
-                                $field_value[ "entity" ],
-                                $field_value[ "office" ],
-                                $field_value[ "CD" ],
-                                $field_value[ "account" ] ) ) {
-	                                $errors[ $field_key[ "CD" ] ] = t( '%item isn\'t the correct check digit. Please, review your account number',
-	                                    array( '%item' => $components[ $field_key[ "CD" ] ][ "name" ] ) );
-                            	  }
                         }
                     }
-                    return $errors;
-                    break;
-            }
-        }
-    }
+
+                    foreach ( $field_length as $field => $length ) {
+                        if ( !array_key_exists( $field, $field_value ) ) {
+                            watchdog( t( "You must choose a %field field to validate", array( "%item" => $field ) ) );
+                            break;
+                        }
+                    }
+
+                    $account_is_empty = TRUE;
+                    foreach ( $field_length as $field => $length ) {
+                        if ( $field_value[ $field ] ) {
+                            $account_is_empty = FALSE;
+                        }
+                    }
+
+                    if ( !$account_is_empty ) {
+                        foreach ( $field_length as $field => $length ) {
+                            $key = $field_key[ $field ];
+                            $value = $field_value[ $field ];
+
+                            if ( !$value ) {
+                                $errors[ $field_key[ $field ] ] = t( '%item cant\'t be blank',
+                                    array( '%item' => $components[ $key ][ "name" ] ) );
+
+                            } elseif ( strlen( $value ) != $length ) {
+                                $errors[ $field_key[ $field ] ] = t( '%item must be %chars length',
+                                    array(
+                                        '%item' => $components[ $key ][ "name" ],
+                                        '%chars' => $field_length[ $field ] ) );
+                            } elseif ( !is_numeric( $value ) ) {
+                                $errors[ $field_key[ $field ] ] = t( '%item must be a string of numbers',
+                                    array( '%item' => $components[ $key ][ "name" ] ) );
+                            }
+                        }
+
+                        if ( !isValidAccountNumber(
+                            $field_value[ "entity" ],
+                            $field_value[ "office" ],
+                            $field_value[ "CD" ],
+                            $field_value[ "account" ] ) ) {
+                              $errors[ $field_key[ "CD" ] ] = t( '%item isn\'t the correct check digit. Please, review your account number',
+                                  array( '%item' => $components[ $field_key[ "CD" ] ][ "name" ] ) );
+                        	  }
+                        }
+              }
+              return $errors;
+
+            break;
+          }
+      }
+  }
 ?>
