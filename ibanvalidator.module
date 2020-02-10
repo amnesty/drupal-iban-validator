@@ -128,6 +128,12 @@
                     $iban = str_replace("-", "", $value);
                 }
 
+                // If all the fields are empty break and return
+               if ($iban == ""){
+                 return $errors;
+                 break;
+               }
+
                 // Validamos el IBAN
                 if( !isValidIban( $iban ) ){
 
