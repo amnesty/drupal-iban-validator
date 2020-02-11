@@ -122,10 +122,12 @@
             case 'validate_iban_unique':
 
                 $ibanerror = 'La cuenta SEPA no es correcta. Revisa el número de cuenta entero, por favor.';
+                $ccerror = 'El número de cuenta no es correcto. Revísalo, por favor.';
 
                 $iban = '';
                 foreach ( $items as $key => $value ) {
                     $iban = str_replace("-", "", $value);
+                    $iban = str_replace(" ", "", $iban);
                 }
 
                 // If all the fields are empty break and return
@@ -134,15 +136,30 @@
                  break;
                }
 
-                // Validamos el IBAN
-                if( !isValidIban( $iban ) ){
+                // Validamos si es SEPA
+                if( strlen($iban) == 24 && !isValidIban( $iban ) ){
 
                   // Mark the error
                   foreach( $items as $key => $value){
                         $errors[$key] = t( $ibanerror,
                           array( '%item' => $components[ $key ][ "name" ] ) );
                   }
+                }
+                // Validamos si es CC española
+                else if( strlen($iban) == 20 ){
 
+                  $cc01 = substr($iban, 0, 4);
+                  $cc02 = substr($iban, 4, 4);
+                  $cc03 = substr($iban, 8, 2);
+                  $cc04 = substr($iban, 10, 10);
+
+                  if( !isValidAccountNumber( $cc01, $cc02, $cc03, $cc04 ) ){
+                    // Mark the error
+                    foreach( $items as $key => $value){
+                          $errors[$key] = t( $ccerror,
+                            array( '%item' => $components[ $key ][ "name" ] ) );
+                    }
+                  }
                 }
 
                 return $errors;
