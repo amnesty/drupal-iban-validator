@@ -82,38 +82,40 @@
                  break;
                }
 
-                // If the SEPA part is empty, calculate it
-                if( $country == '' || !isset($country) ){
-                    if ( !isValidAccountNumber( $entity, $office, $cc, $account ) && !ccc_valido($entity, $office, $cc."".$account) ) {
-                        $i=0;
-                        // Mark the 5th box (dc) as an error
-                        foreach( $items as $key => $value){
-                            if($i==5){
-                                $errors[$key] = t( $esbanerror,
-                                    array( '%item' => $components[ $key ][ "name" ] ) );
-                            }
-                            $i++;
-                        }
-                    }
-                    return $errors;
+                // First, we validate the spanish account number sepparately
+                //if( $country == '' || !isset($country) ){
+                  if ( !isValidAccountNumber( $entity, $office, $cc, $account ) && !ccc_valido($entity, $office, $cc."".$account) ) {
+                      $i=0;
+                      // Mark the 5th box (dc) as an error
+                      foreach( $items as $key => $value){
+                          if($i==5){
+                              $errors[$key] = t( $esbanerror,
+                                  array( '%item' => $components[ $key ][ "name" ] ) );
+                          }
+                          $i++;
+                      }
+                  }
+                  return $errors;
+                //}
+
+                // Second, if is SEPA, we also validate it
+                if( isset($country) && $country <> '' ){
+      				    $iban = $countryid."".$country."".$entity."".$office."".$cc."".$account;
+
+                  // Validamos el IBAN
+      				    if( !isValidIban( $iban ) ){
+      				    	$i=0;
+      						// Mark the 5th box (dc) as an error
+        						foreach( $items as $key => $value){
+        							if($i==5){
+        								$errors[$key] = t( $ibanerror,
+        				                    array( '%item' => $components[ $key ][ "name" ] ) );
+        							}
+        							$i++;
+        						}
+      				    }
+                  return $errors;
                 }
-
-                // If is SEPA, once we have all the parts, we put it together to get the entire IBAN number.
-    				    $iban = $countryid."".$country."".$entity."".$office."".$cc."".$account;
-
-                // Validamos el IBAN
-    				    if( !isValidIban( $iban ) ){
-    				    	$i=0;
-    						// Mark the 5th box (dc) as an error
-      						foreach( $items as $key => $value){
-      							if($i==5){
-      								$errors[$key] = t( $ibanerror,
-      				                    array( '%item' => $components[ $key ][ "name" ] ) );
-      							}
-      							$i++;
-      						}
-    				    }
-                return $errors;
 
             break;
 
@@ -136,16 +138,33 @@
                  break;
                }
 
-                // Validamos si es SEPA
-                if( strlen($iban) == 24 && !isValidIban( $iban ) ){
+                // Caso 1: Validamos si es SEPA
+                if( strlen($iban) == 24 ){
 
-                  // Mark the error
-                  foreach( $items as $key => $value){
-                        $errors[$key] = t( $ibanerror,
-                          array( '%item' => $components[ $key ][ "name" ] ) );
+                  // Primero validamos a parte el ccc
+                  $cc01 = substr($iban, 4, 4);
+                  $cc02 = substr($iban, 8, 4);
+                  $cc03 = substr($iban, 12, 2);
+                  $cc04 = substr($iban, 14, 10);
+
+                  if ( !isValidAccountNumber( $cc01, $cc02, $cc03, $cc04 ) || !ccc_valido($cc01, $cc02, $cc03."".$cc04) ) {
+                    // Mark the error
+                    foreach( $items as $key => $value){
+                          $errors[$key] = t( $ccerror,
+                            array( '%item' => $components[ $key ][ "name" ] ) );
+                    }
                   }
+                  // Luego validamos toda la cuenta SEPA
+                  if( !isValidIban( $iban ) ){
+                    // Mark the error
+                    foreach( $items as $key => $value){
+                          $errors[$key] = t( $ibanerror,
+                            array( '%item' => $components[ $key ][ "name" ] ) );
+                    }
+                  }
+
                 }
-                // Validamos si es CC española
+                // Caso 2: Validamos si es CC española
                 else if( strlen($iban) == 20 ){
 
                   $cc01 = substr($iban, 0, 4);
@@ -173,7 +192,7 @@
                     $field_length = array(
                         "entity" => 4,
                         "office" => 4,
-                        "CD" => 2,
+                        "check" => 2,
                         "account" => 10
                     );
 
@@ -223,13 +242,11 @@
                             }
                         }
 
-                        if ( !isValidAccountNumber(
-                            $field_value[ "entity" ],
-                            $field_value[ "office" ],
-                            $field_value[ "CD" ],
-                            $field_value[ "account" ] ) ) {
-                              $errors[ $field_key[ "CD" ] ] = t( '%item isn\'t the correct check digit. Please, review your account number',
-                                  array( '%item' => $components[ $field_key[ "CD" ] ][ "name" ] ) );
+                        if ( !isValidAccountNumber($field_value[ "entity" ],$field_value[ "office" ],$field_value[ "check" ],$field_value[ "account" ] )
+                            || !ccc_valido($field_value[ "entity" ], $field_value[ "office" ], $field_value[ "check" ]."".$field_value[ "account" ])
+                           ) {
+                              $errors[ $field_key[ "check" ] ] = t( 'Por favor revisa el número de cuenta',
+                                  array( '%item' => $components[ $field_key[ "check" ] ][ "name" ] ) );
                         	  }
                         }
               }
