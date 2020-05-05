@@ -125,6 +125,7 @@
 
                 $ibanerror = 'La cuenta SEPA no es correcta. Revisa el número de cuenta entero, por favor.';
                 $ccerror = 'El número de cuenta no es correcto. Revísalo, por favor.';
+                $sizerror = 'El número de cuenta corriente no tiene el número de dígitos correcto. Revísalo, por favor.'
 
                 $iban = '';
                 foreach ( $items as $key => $value ) {
@@ -178,6 +179,13 @@
                           $errors[$key] = t( $ccerror,
                             array( '%item' => $components[ $key ][ "name" ] ) );
                     }
+                  }
+                }
+                else {
+                  // Mark the error
+                  foreach( $items as $key => $value){
+                        $errors[$key] = t( $sizerror,
+                          array( '%item' => $components[ $key ][ "name" ] ) );
                   }
                 }
 
