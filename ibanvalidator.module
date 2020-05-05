@@ -84,7 +84,7 @@
 
                 // First, we validate the spanish account number sepparately
                 //if( $country == '' || !isset($country) ){
-                  if ( !isValidAccountNumber( $entity, $office, $cc, $account ) && !ccc_valido($entity, $office, $cc."".$account) ) {
+                  if ( /*!isValidAccountNumber( $entity, $office, $cc, $account ) &&*/ !ccc_valido($entity, $office, $cc."".$account) ) {
                       $i=0;
                       // Mark the 5th box (dc) as an error
                       foreach( $items as $key => $value){
