@@ -172,7 +172,7 @@
                   $cc03 = substr($iban, 8, 2);
                   $cc04 = substr($iban, 10, 10);
 
-                  if( !isValidAccountNumber( $cc01, $cc02, $cc03, $cc04 ) ){
+                  if( !isValidAccountNumber( $cc01, $cc02, $cc03, $cc04 ) && !ccc_valido($cc01, $cc02, $cc03."".$cc04) ){
                     // Mark the error
                     foreach( $items as $key => $value){
                           $errors[$key] = t( $ccerror,
